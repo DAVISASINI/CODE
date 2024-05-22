@@ -6,43 +6,90 @@
     <title>Document</title>
 </head>
 <body>
-    <form id="form" action="/">
+    <form id="form" onsubmit="return validateForm()">
          <label for="firstname">First Name</label>
-         <input type="text"  name="firstname"id="firstname" required><br>
-         <span  class="error"></span><br>
-
+         <input type="text" name="firstname" id="firstname" required><br><br>
+        
          <label for="lastname">Last Name</label>
-         <input type="text"  name="lastname"id="lastname" required><br>
-         <span  class="error"></span><br>
+         <input type="text" name="lastname" id="lastname" required><br><br>
+        
+         <label for="othername">Other Name (Optional)</label>
+         <input type="text" name="othername" id="othername"><br><br>
 
-
-         <label for="othername">Other Name(Optional)</label>
-         <input type="text"  name="othername" id="othername" ><br><br>
-
-
-         <label for="email">Eail Address</label>
-         <input type="text"  name="email" id="email" required><br>
-         <span  class="error"></span><br>
-         
+         <label for="email">Email Address</label>
+         <input type="text" name="email" id="email" required><br><br>
+        
          <label for="phone">Phone Number</label>
-         <input type="tel"  name="phone"  id="phone" required><br>
-         <span  class="error"></span><br>
-
-
+         <input type="tel" name="phone" id="phone" required><br><br>
+        
          <label for="gender">Gender:</label><br>
-        <select id="gender" name="gender" required>
+         <select id="gender" name="gender" required>
                 <option value="">Select</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
         </select><br>
-        <span  class="error"></span><br>
-
-        <button type="submit" onclick="validateForm()">Sign Up</button>
-
-
-
+       
+        <button type="submit">Sign Up</button>
     </form>
-    <script src="script.js"></script> 
+    <script>
+        function validateForm() {
+            let form = document.forms["form"];
+            let fname = form["firstname"].value;
+            let lname = form["lastname"].value;
+            let mail = form["email"].value;
+            let contact = form["phone"].value;
+            let genderStatus = form["gender"].value;
+            let isValid = true; // Flag to track form validity
+
+            if (fname === "") {
+                alert("First Name must be filled out");
+                isValid = false;
+            }
+            if (lname === "") {
+                alert("Last Name must be filled out");
+                isValid = false;
+            }
+            if (mail === "") {
+                alert("Email must be filled out");
+                isValid = false;
+            }
+            if (contact === "" || contact.length !== 11) {
+                alert("Phone contact is required and should be exactly 10 digits.");
+                isValid = false;
+            }
+            if (genderStatus === "") {
+                alert("Please select your gender");
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Send data to server only if the form is valid
+                let jsonObject = {
+                    fname: fname,
+                    lname: lname,
+                    otherName: form["othername"].value,
+                    mail: mail,
+                    contact: contact,
+                    genderStatus: genderStatus
+                };
+
+                fetch("http://127.0.0.1:3000", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(jsonObject)
+                }).then(response => response.json()).then(data => {
+                    console.log("Success:", data);
+                    form.reset(); // Reset form fields
+                }).catch(error => {
+                    console.error("Error:", error);
+                });
+            }
+
+            return false; // Prevent form from submitting the default way
+        }
+    </script>
 </body>
 </html>
